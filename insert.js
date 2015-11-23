@@ -38,11 +38,10 @@ http.createServer(function(request, response) {
                     console.log(result);
                     response.write('Inserted ' + result.insertedCount +' documents ok. +"\n"');
                 }
+                db.close();
+                response.end('Finished, Connection closed \n');
             });
-                //Done Close connection
-            db.close();
         }
-        response.end('Finished, Connection closed \n');
     });
 
 }).listen(port);
