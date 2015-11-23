@@ -20,28 +20,32 @@ http.createServer(function(request, response) {
         response.write('Connection Made \n');
         if (err) {
             response.write('Unable to connect to the mongoDB server. Error:' + err + "\n");
-            //Ffs Error so close connection
+            //Error so close connection
             db.close();
         } else {
             //HURRAY!! We are connected. :)
             response.write('Connection established to' + url +"\n");
 
-            // Get the documents userCollection
-            var userCollection = db.collection('users');
-            var user1 = {name: 'modulus admin', age: 42, roles: ['admin', 'moderator', 'user']};
-            var user2 = {name: 'modulus user', age: 22, roles: ['user']};
-            var user3 = {name: 'modulus super admin', age: 92, roles: ['super-admin', 'admin', 'moderator', 'user']};
-            userCollection.insert([user1, user2, user3], function (err, result) {
+            // Get the documents collection
+            var collection = db.collection('users');
+            var results = collection.find({name: 'modulus user'});
+            results.each(function (err, result) {
                 if (err) {
-                    response.write('Insert failed ' + err + "\n");
+                    response.write(err);
                 } else {
-                    console.log(result);
-                    response.write('Inserted ' + result.insertedCount +' documents ok. +"\n"');
+                    response.write('Fetched: ' + result.name + " : " + result.age + " : " + result.roles.toString() +'\n');
                 }
-                db.close();
-                response.end('Finished, Connection closed \n');
+                //if the result is null, there are no more results, it’s ok to close everything
+                if (result == null) {
+                    response.end('Completed');
+                    db.close();
+                }
             });
+
+            //Done Close connection
+            db.close();
         }
+        response.end('Finished, Connection closed \n');
     });
 
 }).listen(port);
